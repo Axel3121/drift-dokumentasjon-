@@ -1,0 +1,30 @@
+# Importer CSV-filen
+$users = Import-Csv -Path "C:\Users\Administrator\Downloads\TreyUsers.csv"
+
+foreach ($user in $users) {
+    $name = $user.Name
+    $givenName = $user.GivenName
+    $surname = $user.Surname
+    $displayName = $user.DisplayName
+    $samAccountName = $user.SAMAccountName
+    $description = $user.Description
+    $password = (ConvertTo-SecureString -String Passw0rd1 -AsPlainText -Force)
+
+    
+    # Sett et standard passord (bør endres til noe sikrere)
+    $password = ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force
+    
+    # Opprett brukeren i Active Directory
+    New-ADUser -Name $name `
+               -GivenName $givenName `
+               -Surname $surname `
+               -DisplayName $displayName `
+               -SamAccountName $samAccountName `
+               -UserPrincipalName "$samAccountName@yourdomain.com" `
+               -Path "OU=Ansatte,DC=LAB,DC=LAN" `
+               -AccountPassword $password `
+               -Enabled $true `
+               -Description $description
+    
+    Write-Host "Bruker $name opprettet med SAMAccountName: $samAccountName"
+}
